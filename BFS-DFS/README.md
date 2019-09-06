@@ -1,1 +1,3 @@
-# CSE-643-Artificial-Intelligence
+# Uninformed Search Algorithms:
+# BFS
+# DFS
