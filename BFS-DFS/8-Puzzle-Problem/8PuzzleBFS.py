@@ -1,166 +1,140 @@
 import copy
-PATH = []
+import time
+PATH =[] 
+Open = []
+Closed = []
+def isSolvable(State,n):
+    if n == 10:
+        n -= 1
+    inv_count = 0
+    for i in range(n):
+        for j in range(i+1,n):
+            if State[i] == -1 or State[j] == -1:
+                continue
+            else:
+                if(State[i] > State[j]):
+                    inv_count+=1
+    
+    return (inv_count%2 == 0)
 
 
 def GoalTest(State,GoalState):
-    if(State == GoalState):
-        return True;
-    return False;
+    count=0
+    for item in range(9):
+        if State[item] == GoalState[item]:
+            count+=1
+    return (count == 9)
 
-def swap(State, pos1, pos2): 
-    Child = copy.deepcopy(State)
-    Child[pos1], Child[pos2] = Child[pos2], Child[pos1] 
-    return Child
 
-def search(State):
-    for i in range(len(State)):
-        if State[i] == -1:
-            return i
+def swapState(CurrentState,ind1,ind2):
+    tempState = copy.deepcopy(CurrentState)
+    temp = tempState[ind1]
+    tempState[ind1] = tempState[ind2]
+    tempState[ind2] = temp
+    return tempState
+
+def unExplored(Closed,Child,Open):
+    for item in Closed:
+        count = 0
+        for i in range(9):
+            if item[i] == Child[i]:
+                count+=1
+        if count == 9:
+            return False
         
-    return -1
+    for item in Open:
+        count = 0
+        for i in range(9):
+            if item[i] == Child[i]:
+                count+=1
+        if count == 9:
+            return False
+    return True
 
-def generateChildren(currentState,fringeNodes,visibleNodes,exploredNodes):
-    ind = search(currentState)
-    for state in visibleNodes:
-        fringeNodes.append(state)
+def generateChilds(CurrentState,GoalState,Open,Closed):
+    global PATH
+    ind = 0 
+    for i in range(9):
+        if CurrentState[i] == -1:
+            ind = i
+            break
+        
+    if ind - 3 >= 0 :
+        Child = swapState(CurrentState,ind,ind -3)
+        Child[9].append(CurrentState[ind-3])
+        if GoalTest(Child,GoalState):
+            PATH = Child[9]
+            return True
+        if unExplored(Closed,Child,Open) and isSolvable(Child,10):
+            Open.append(Child)
     
-    visibleNodes = []
     
-    if(ind == 0):
-        Child1 = swap(currentState,0,1)
-        Child2 = swap(currentState,0,3)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-    elif(ind == 2):
-        Child1 = swap(currentState,1,2)
-        Child2 = swap(currentState,2,5)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-    elif(ind == 6):
-        Child1 = swap(currentState,6,3)
-        Child2 = swap(currentState,6,7)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-    elif(ind == 8):
-        Child1 = swap(currentState,8,7)
-        Child2 = swap(currentState,8,5)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-    elif(ind == 1):
-        Child1 = swap(currentState,0,1)
-        Child2 = swap(currentState,1,2)
-        Child3 = swap(currentState,1,4)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-        if Child3 not in exploredNodes:
-            visibleNodes.append(Child3)
-    elif(ind == 3):
-        Child1 = swap(currentState,0,3)
-        Child2 = swap(currentState,3,4)
-        Child3 = swap(currentState,3,6)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-        if Child3 not in exploredNodes:
-            visibleNodes.append(Child3)
-    elif(ind == 5):
-        Child1 = swap(currentState,5,2)
-        Child2 = swap(currentState,5,4)
-        Child3 = swap(currentState,5,8)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-        if Child3 not in exploredNodes:
-            visibleNodes.append(Child3)
-    elif(ind == 7):
-        Child1 = swap(currentState,7,6)
-        Child2 = swap(currentState,7,8)
-        Child3 = swap(currentState,7,4)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-        if Child3 not in exploredNodes:
-            visibleNodes.append(Child3)
+    if ind - 1 >= 0 and ind-1!=2 and ind-1!=5:
+        Child = swapState(CurrentState,ind,ind -1)
+        Child[9].append(CurrentState[ind-1])
+        if GoalTest(Child,GoalState):
+            PATH = Child[9]
+            return True
+        if unExplored(Closed,Child,Open) and isSolvable(Child,10):
+            Open.append(Child)
+        
+        
+        
+    if ind + 1 <= 8 and ind+1 != 3 and ind+1!= 6:
+        Child = swapState(CurrentState,ind,ind +1)
+        Child[9].append(CurrentState[ind+1])
+        if GoalTest(Child,GoalState):
+            PATH = Child[9]
+            return True
+        if unExplored(Closed,Child,Open) and isSolvable(Child,10):
+            Open.append(Child)
+    
+    
+    if ind + 3 <= 8:
+        Child = swapState(CurrentState,ind,ind +3)
+        Child[9].append(CurrentState[ind+3])
+        if GoalTest(Child,GoalState):
+            PATH = Child[9]
+            return True
+        if unExplored(Closed,Child,Open) and isSolvable(Child,10):
+            Open.append(Child)
+
+def BFS(InitialState, GoalState):
+    global PATH
+    InitialState.append([])
+    if GoalTest(InitialState,GoalState):
+        PATH = InitialState[9]
+        return True
     else:
-        Child1 = swap(currentState,4,3)
-        Child2 = swap(currentState,4,5)
-        Child3 = swap(currentState,4,1)
-        Child4 = swap(currentState,4,7)
-        if Child1 not in exploredNodes:
-            visibleNodes.append(Child1)
-        if Child2 not in exploredNodes:
-            visibleNodes.append(Child2)
-        if Child3 not in exploredNodes:
-            visibleNodes.append(Child3)
-        if Child4 not in exploredNodes:
-            visibleNodes.append(Child4)
-            
-    return visibleNodes,fringeNodes
-    
-    
+        global Open
+        global Closed
+        Open.append(InitialState)
+        
+        while(len(Open)!=0):
+            CurrentState= Open.pop(0)
+            flag = generateChilds(CurrentState,GoalState,Open,Closed)
+            if(flag == True):
+                return True
+            Closed.append(CurrentState)
             
         
-    
-    
-
-def BFS(InitialState,GoalState):
-    if(GoalTest(InitialState,GoalState)):
-        return True; 
-    
-    fringeNodes = []
-    fringeNodes.append(InitialState)
-    visibleNodes = []
-    exploredNodes = []
-    
-    while (len(fringeNodes) != 0):
-        currentState = fringeNodes.pop(0)
-        visibleNodes,fringeNodes=generateChildren(currentState,fringeNodes,visibleNodes,exploredNodes)
-        for item in visibleNodes:
-            if(GoalTest(item,GoalState)):
-                return True;
-        exploredNodes.append(currentState)
-    return False
-    
-
-
+        
 
 if __name__ == "__main__":
-    InitialState = [1,2,3,4,-1,5,7,8,6]
-    
-    '''
-    
-    |  1  |  2  |  3  |
-    |  4  |  5  |  B  |
-    |  7  |  8  |  6  |
-    
-    '''
-    
+    InitialState = [1,2,3,4,6,8,7,5,-1]
     GoalState = [1,2,3,4,5,6,7,8,-1]
     
-    '''
-    
-    |  1  |  2  |  3  |
-    |  4  |  5  |  6  |
-    |  7  |  8  |  B  |
-    
-    '''
-    flag = BFS(InitialState,GoalState)
-    
-    if flag == True:
-        print("Path Found!")
+    if isSolvable(InitialState,9):
+        start_time = time.perf_counter()
+        flag = BFS(InitialState,GoalState)
+        end_time = time.perf_counter()
+        if flag:
+            print("Path Found!")
+            print("Expanded Nodes: ",len(Closed),sep="")
+            print("Total Saved Nodes: ",len(Closed)+len(Open),sep="")
+            print("Time Taken (In Seconds): ",end_time-start_time,sep="")
+            print(PATH)
+        else:
+            print("Not Solvable! No Path Found")
     else:
-        print("Path Not Found!")
-        
+            print("Not Solvable! No Path Found")
