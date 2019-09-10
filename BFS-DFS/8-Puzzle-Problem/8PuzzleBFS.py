@@ -1,5 +1,6 @@
 import copy
-import time
+import time 
+
 PATH =[] 
 OPEN = []
 CLOSED = []
@@ -100,7 +101,7 @@ def generateChilds(CurrentState,GoalState,n):
             return True
         if unExplored(Child,n):
             OPEN.append(Child)
-        8
+        
         
         
     if ind + 1 <= n and int(ind/width) == int((ind+1)/width):

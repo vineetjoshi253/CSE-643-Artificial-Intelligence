@@ -1,4 +1,5 @@
 import copy
+import time 
 
 PATH = []
 OPEN = []
@@ -12,14 +13,14 @@ def SearchBlock(State,n):
 def isSolvable(State,n):
     width = int((n+1)**0.5)
     inv_count = 0
-    for i in range(n):
-        for j in range(i+1,n):
+    for i in range(n+1):
+        for j in range(i+1,n+1):
             if State[i] == -1 or State[j] == -1:
                 continue
             else:
                 if(State[i] > State[j]):
                     inv_count+=1
-                    
+    
     if width%2!=0:
         if(inv_count%2==0):
             return True
@@ -35,6 +36,7 @@ def isSolvable(State,n):
             if inv_count%2 == 0:
                 return True
             return False
+
          
 def GoalTest(State,GoalState,n):
     count=0
@@ -80,7 +82,7 @@ def generateChilds(CurrentState,GoalState,n):
             ind = i
             break
     
-    width = int((n+1)**0.5)    
+    width = int((n+1)**0.5) 
     if ind - width >= 0 :
         Child = swapState(CurrentState,ind,ind -width)
         Child[n+1].append(CurrentState[ind-width])
@@ -107,9 +109,10 @@ def generateChilds(CurrentState,GoalState,n):
         Child[n+1].append(CurrentState[ind+width])
         if unExplored(Child,n):
             CHILDREN.append(Child)
-            
-    for i in range(len(CHILDREN)-1,0,-1):
+    
+    for i in range(len(CHILDREN)-1,-1,-1):
         OPEN.insert(0, CHILDREN[i])
+    
         
 def DFS(InitialState,GoalState,n):
     global OPEN
@@ -123,6 +126,7 @@ def DFS(InitialState,GoalState,n):
             PATH = CurrentState[n+1]
             return True
         generateChilds(CurrentState,GoalState,n)
+        CLOSED.append(CurrentState)
     
     return False
 
@@ -132,9 +136,7 @@ if __name__ == "__main__":
     InitialState = []
     n = int(input("Enter The Value Of n For The Puzzle "))
     print("Enter The Initial State With -1 For Blank")
-    for i in range(n+1):
-        temp = int(input())
-        InitialState.append(temp)
+    InitialState = [int(x) for x in input().split()]
     InitialState.append([])
     GoalState = []
     for i in range(n):
@@ -142,9 +144,14 @@ if __name__ == "__main__":
     GoalState.append(-1)
     
     if isSolvable(InitialState,n):
+        start_time = time.perf_counter()
         flag = DFS(InitialState,GoalState,n)
+        end_time = time.perf_counter()
         if flag:
             print("PATH FOUND")
+            print("Expanded Nodes: ",len(CLOSED),sep="")
+            print("Total Saved Nodes: ",len(CLOSED)+len(OPEN),sep="")
+            print("Time Taken (In Seconds): ",end_time-start_time,sep="")
             print(PATH)
         else:
             print("UNABLE TO FIND ANY PATH")
